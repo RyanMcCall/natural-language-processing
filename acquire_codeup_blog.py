@@ -31,3 +31,31 @@ def get_blog_articles():
         articles.append(article_dict)
 
     return articles
+
+def get_all_blog_articles():
+    url = 'https://codeup.com/resources/#blog'
+    headers = {'User-Agent': 'Codeup Data Science'}
+    response = get(url, headers=headers)
+    soup = BeautifulSoup(response.content, 'html.parser')
+
+    links = []
+
+    for a in soup.find_all('a', class_='jet-listing-dynamic-link__link', href=True):
+        links.append(a['href'])
+        
+    articles = []
+
+    for link in links:
+        headers = {'User-Agent': 'Codeup Data Science'}
+        response = get(link, headers=headers)
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        article_text = soup.find('div', class_='jupiterx-post-content clearfix').text
+        article_title = soup.find('h1', class_='jupiterx-post-title').text
+
+        article_dict = {'title': article_title,
+                        'content': article_text}
+
+        articles.append(article_dict)
+
+    return articles
