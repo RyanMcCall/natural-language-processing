@@ -1,5 +1,7 @@
 from requests import get
 from bs4 import BeautifulSoup
+from os import path
+import pandas as pd
 
 def get_soup(link):
     headers = {'User-Agent': 'Codeup Data Science'}
@@ -32,30 +34,39 @@ def get_blog_articles():
 
     return articles
 
-def get_all_blog_articles():
-    url = 'https://codeup.com/resources/#blog'
-    headers = {'User-Agent': 'Codeup Data Science'}
-    response = get(url, headers=headers)
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    links = []
-
-    for a in soup.find_all('a', class_='jet-listing-dynamic-link__link', href=True):
-        links.append(a['href'])
-        
-    articles = []
-
-    for link in links:
+def get_all_blog_articles(keep_old=True):
+    
+    if path.isfile("blog_articles.csv") and keep_old:
+        return pd.read_csv('blog_articles.csv')
+    
+    else:
+        url = 'https://codeup.com/resources/#blog'
         headers = {'User-Agent': 'Codeup Data Science'}
-        response = get(link, headers=headers)
+        response = get(url, headers=headers)
         soup = BeautifulSoup(response.content, 'html.parser')
 
-        article_text = soup.find('div', class_='jupiterx-post-content clearfix').text
-        article_title = soup.find('h1', class_='jupiterx-post-title').text
+        links = []
 
-        article_dict = {'title': article_title,
-                        'content': article_text}
+        for a in soup.find_all('a', class_='jet-listing-dynamic-link__link', href=True):
+            links.append(a['href'])
 
-        articles.append(article_dict)
+        articles = []
 
-    return articles
+        for link in links:
+            headers = {'User-Agent': 'Codeup Data Science'}
+            response = get(link, headers=headers)
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            article_text = soup.find('div', class_='jupiterx-post-content clearfix').text
+            article_title = soup.find('h1', class_='jupiterx-post-title').text
+
+            article_dict = {'title': article_title,
+                            'content': article_text}
+
+            articles.append(article_dict)
+        
+        df = pd.DataFrame(articles)
+        
+        df.to_csv('blog_articles.csv')
+        
+        return df
