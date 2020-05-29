@@ -37,7 +37,7 @@ def get_blog_articles():
 def get_all_blog_articles(keep_old=True):
     
     if path.isfile("blog_articles.csv") and keep_old:
-        return pd.read_csv('blog_articles.csv')
+        return pd.read_csv('blog_articles.csv', index_col='Unnamed: 0')
     
     else:
         url = 'https://codeup.com/resources/#blog'
@@ -74,7 +74,7 @@ def get_all_blog_articles(keep_old=True):
 def get_news_articles(keep_old=True):
     
     if path.isfile('news_articles.csv') and keep_old:
-        return pd.read_csv('news_articles.csv')
+        return pd.read_csv('news_articles.csv', index_col='Unnamed: 0')
     
     else:
         pages = ['/business', '/sports', '/technology','/entertainment']
